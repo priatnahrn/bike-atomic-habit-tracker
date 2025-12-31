@@ -14,7 +14,7 @@ const PricingSection = () => {
             ],
             buttonText: "Start Free",
             highlight: false,
-            buttonStyle: "bg-white text-orange-500 border-2 border-orange-500 hover:bg-orange-50"
+            buttonStyle: "bg-white text-orange-500 border border-orange-200 hover:border-orange-500 hover:bg-orange-50"
         },
         {
             name: "Sprinter",
@@ -30,7 +30,7 @@ const PricingSection = () => {
             buttonText: "Go Pro",
             highlight: true,
             popular: true,
-            buttonStyle: "bg-orange-500 text-white hover:bg-orange-600 border-2 border-orange-500"
+            buttonStyle: "bg-orange-500 text-white hover:bg-orange-600 border border-orange-500 shadow-md transform transition hover:-translate-y-0.5"
         },
         {
             name: "Tour",
@@ -45,7 +45,7 @@ const PricingSection = () => {
             ],
             buttonText: "Get Premium",
             highlight: false,
-            buttonStyle: "bg-white text-orange-500 border-2 border-orange-500 hover:bg-orange-50"
+            buttonStyle: "bg-white text-orange-500 border border-orange-200 hover:border-orange-500 hover:bg-orange-50"
         }
     ];
 
@@ -59,13 +59,13 @@ const PricingSection = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
                     {plans.map((plan) => (
                         <div
                             key={plan.name}
                             className={`relative rounded-2xl p-8 bg-white transition-all duration-300 ${plan.highlight
-                                ? 'shadow-xl ring-2 ring-orange-400 scale-105 z-10'
-                                : 'border border-gray-200 hover:shadow-lg'
+                                ? 'shadow-xl ring-1 ring-orange-200 lg:scale-105 z-10'
+                                : 'border border-gray-100 hover:border-orange-100 hover:shadow-lg'
                                 }`}
                         >
                             {plan.popular && (
@@ -94,7 +94,7 @@ const PricingSection = () => {
                                 ))}
                             </ul>
 
-                            <button className={`w-full py-3 px-6 rounded-lg font-bold transition-colors ${plan.buttonStyle}`}>
+                            <button className={`w-full py-3 px-6 rounded-lg font-bold cursor-pointer transition-colors ${plan.buttonStyle}`}>
                                 {plan.buttonText}
                             </button>
                         </div>

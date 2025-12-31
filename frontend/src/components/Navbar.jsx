@@ -37,8 +37,8 @@ const Navbar = () => {
 
                     </ul>
                     <div className="nav-btns flex items-center gap-4">
-                        <button className="btn text-gray-500 hover:text-primary cursor-pointer">Login</button>
-                        <button className="btn px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-primary/80 cursor-pointer transition-all duration-300 transform hover:scale-105">Sign Up</button>
+                        <button className="btn text-gray-500 hover:text-primary cursor-pointer"><Link to="/login">Login</Link></button>
+                        <button className="btn px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-primary/80 cursor-pointer transition-all duration-300 transform hover:scale-105"><Link to="/register">Sign Up</Link></button>
                     </div>
                 </nav>
 

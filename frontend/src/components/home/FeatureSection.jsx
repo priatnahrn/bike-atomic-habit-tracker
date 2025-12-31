@@ -32,7 +32,7 @@ const FeatureSection = () => {
                     <p className="text-gray-500 text-center max-w-xl leading-[1.8]">BIKE is not just a habit tracker. It's your personal habit coach, designed to help you build sustainable habits that last a lifetime.</p>
                 </div>
 
-                <div className="flex lg:flex-row flex-col justify-center items-center  gap-8">
+                <div className="flex md:flex-row flex-col justify-center items-center  gap-8">
                     {features.map((feature, index) => (
                         <article key={index} className="border border-gray-200 p-6 bg-white rounded-lg md:w-1/3 w-full hover:border-primary hover:border-2 hover:text-primary hover:shadow-lg transition-all duration-500 transform hover:scale-105">
                             <img src={feature.icon} alt="Gear" className="w-12 h-12" />
