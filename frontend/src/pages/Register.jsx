@@ -1,7 +1,10 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { Eye, EyeOff, Check, X, ArrowRight, Bike, TrendingUp, Shield, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Check, X, ArrowRight, ArrowLeft } from "lucide-react"
 import Slider from "../components/auth/Slider"
+import pedalIcon from "../assets/images/pedal.png"
+import trackIcon from "../assets/images/track.png"
+import visualizeIcon from "../assets/images/visualize.png"
 
 const Register = () => {
     const [fullName, setFullName] = useState("")
@@ -18,19 +21,19 @@ const Register = () => {
 
     const slides = [
         {
-            icon: Bike,
+            icon: pedalIcon,
             title: "Join the Movement",
             description: "Be part of a community dedicated to building better habits. Start your journey with us today.",
             step: 1
         },
         {
-            icon: TrendingUp,
+            icon: trackIcon,
             title: "Visualize Success",
             description: "Watch your progress grow day by day. Our tools help you see the bigger picture of your achievements.",
             step: 2
         },
         {
-            icon: Shield,
+            icon: visualizeIcon,
             title: "Commit to Yourself",
             description: "Make a promise to yourself and keep it. We provide the structure you need to stay consistent.",
             step: 3

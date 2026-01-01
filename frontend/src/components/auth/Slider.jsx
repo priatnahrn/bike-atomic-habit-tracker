@@ -29,8 +29,8 @@ const Slider = ({ slides }) => {
 
                         {/* Main Card */}
                         <div className="relative z-10 bg-white p-12 rounded-3xl border border-gray-100">
-                            <div className="size-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-8 text-primary">
-                                <slide.icon size={32} />
+                            <div className="mb-8">
+                                <img src={slide.icon} alt="" className="w-16 h-16 object-contain" />
                             </div>
                             <h1 className="text-3xl lg:text-4xl font-extrabold text-neutral leading-[1.1] tracking-tight mb-4">
                                 {slide.title === "Welcome to BIKE" ? (

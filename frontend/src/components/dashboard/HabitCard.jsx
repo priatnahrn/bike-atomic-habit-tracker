@@ -1,9 +1,13 @@
 import { CheckCircle, Flame, Calendar, Trophy, Check } from "lucide-react"
 import { useState } from "react"
+import { getColorClass } from "../../utils/colors"
 
 const HabitCard = ({ habit, onClick }) => {
-    const { title, subtitle, icon: Icon, streak, frequency, target, isCompleted = false } = habit
+    const { title, subtitle, icon: Icon, streak, frequency, target, isCompleted = false, color } = habit
     const [completed, setCompleted] = useState(isCompleted)
+
+    // Get color theme based on habit.color
+    const theme = getColorClass(color)
 
     const handleCheckIn = () => {
         setCompleted(!completed)
@@ -12,27 +16,27 @@ const HabitCard = ({ habit, onClick }) => {
     return (
         <div
             onClick={onClick}
-            className={`group flex flex-col justify-between h-64 p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden cursor-pointer ${completed
-                ? "bg-primary/5 border-primary shadow-md"
-                : "bg-white border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-primary/50"
+            className={`group flex flex-col justify-between h-64 p-6 rounded-3xl border transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer ${completed
+                ? `${theme.light} ${theme.borderCompleted || "border-gray-200"}` // Light bg + light border when completed
+                : `bg-white border-gray-100 ${theme.hoverBorder} hover:bg-gray-50/50`
                 }`}>
             {/* Background Icon Effect */}
             <Icon
                 strokeWidth={1}
-                className={`absolute -right-4 -bottom-4 transition-colors duration-300 select-none ${completed ? "text-primary/10" : "text-gray-50 group-hover:text-primary/5"
+                className={`absolute -right-4 -bottom-4 transition-colors duration-500 select-none ${completed ? `${theme.text} opacity-10` : `text-gray-50 group-hover:${theme.text} group-hover:opacity-5`
                     }`}
                 size={140}
             />
 
             {/* Header */}
             <div className="flex justify-between items-start z-10">
-                <div className={`p-3 rounded-xl transition-colors duration-300 ${completed ? "bg-primary text-white" : "bg-gray-50 text-gray-900 group-hover:bg-primary/10 group-hover:text-primary"
+                <div className={`p-3 rounded-2xl transition-colors duration-300 ${completed ? `${theme.primary} text-white` : `bg-gray-50 text-gray-900 group-hover:${theme.light} group-hover:${theme.text}`
                     }`}>
                     <Icon size={24} />
                 </div>
 
-                <div className="flex items-center gap-1 px-2 py-1 bg-white/80 rounded-lg border border-gray-100 backdrop-blur-sm">
-                    <Flame size={14} className="text-primary fill-current animate-pulse" />
+                <div className="flex items-center gap-1 px-3 py-1 bg-white/60 rounded-full border border-gray-100 backdrop-blur-sm">
+                    <Flame size={14} className={`${theme.text} fill-current animate-pulse`} />
                     <span className="text-xs font-bold text-gray-900">{streak} Streak</span>
                 </div>
             </div>
@@ -40,7 +44,7 @@ const HabitCard = ({ habit, onClick }) => {
             {/* Title & Info */}
             <div className="mt-4 z-10">
                 <div className="flex items-center justify-between">
-                    <h2 className={`text-xl font-extrabold leading-tight transition-colors duration-300 ${completed ? "text-primary" : "text-gray-900 group-hover:text-primary"
+                    <h2 className={`text-xl font-extrabold leading-tight transition-colors duration-300 ${completed ? theme.text : `text-gray-900 group-hover:${theme.text}`
                         }`}>
                         {title}
                     </h2>
@@ -53,13 +57,10 @@ const HabitCard = ({ habit, onClick }) => {
                     </div>
                     {target && (
                         <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                            <Trophy size={14} className="text-primary" />
-                            <span>target: {target}</span>
+                            <Trophy size={14} className={theme.text} />
+                            <span>{target}</span>
                         </div>
                     )}
-                    <p className="text-xs text-gray-400 mt-1 italic">
-                        {subtitle}
-                    </p>
                 </div>
             </div>
 
@@ -70,9 +71,9 @@ const HabitCard = ({ habit, onClick }) => {
                         e.stopPropagation()
                         handleCheckIn()
                     }}
-                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-xl font-bold transition-all duration-300 ${completed
-                        ? "bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
-                        : "bg-gray-100 text-gray-900 hover:bg-primary hover:text-white"
+                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-bold transition-all duration-300 ${completed
+                        ? `${theme.button} text-white hover:opacity-90`
+                        : `bg-gray-100 text-gray-900 hover:${theme.button} hover:text-white`
                         }`}
                 >
                     {completed ? (

@@ -1,11 +1,35 @@
 import { useState } from "react"
-import { ArrowRight, Check, Bike, Layers, Clock, MapPin } from "lucide-react"
+import { ArrowRight, Check, Bike, Layers, Clock, MapPin, Zap, Activity, Dumbbell, Footprints, BookOpen, PenTool, Briefcase, Code, Moon, Sun, Coffee, Music, Heart, Apple, Droplets, BedDouble, Utensils, Smile } from "lucide-react"
+import { HABIT_COLORS } from "../utils/colors"
+
+const iconOptions = [
+    { name: "Zap", icon: Zap },
+    { name: "Activity", icon: Activity },
+    { name: "Dumbbell", icon: Dumbbell },
+    { name: "Footprints", icon: Footprints },
+    { name: "BookOpen", icon: BookOpen },
+    { name: "PenTool", icon: PenTool },
+    { name: "Briefcase", icon: Briefcase },
+    { name: "Code", icon: Code },
+    { name: "Moon", icon: Moon },
+    { name: "Sun", icon: Sun },
+    { name: "Coffee", icon: Coffee },
+    { name: "Music", icon: Music },
+    { name: "Heart", icon: Heart },
+    { name: "Apple", icon: Apple },
+    { name: "Droplets", icon: Droplets },
+    { name: "BedDouble", icon: BedDouble },
+    { name: "Utensils", icon: Utensils },
+    { name: "Smile", icon: Smile },
+]
 
 const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
     const [step, setStep] = useState(1)
     const [formData, setFormData] = useState(initialData || {
         identity: "",
         habitName: "",
+        iconName: "Zap",
+        color: "orange",
         frequency: "Daily",
         time: "",
         location: "",
@@ -29,13 +53,10 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
     }
 
     return (
-        <div className="flex flex-col max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="p-8 pb-0">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className="size-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                        <Bike size={18} />
-                    </div>
+        <div className="flex flex-col h-[90vh] overflow-hidden rounded-3xl bg-white">
+            {/* Header (Fixed) */}
+            <div className="p-8 pb-0 shrink-0">
+                <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-extrabold text-gray-900">{initialData ? "Edit Habit" : "Create New Habit"}</h2>
                 </div>
                 <p className="text-gray-500">{initialData ? "Refine your system." : "Let's build a system for success."}</p>
@@ -53,11 +74,11 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                 </div>
             </div>
 
-            {/* Body */}
-            <div className="px-8 pb-8 flex-1">
+            {/* Body (Scrollable) */}
+            <div className="px-8 pb-8 flex-1 overflow-y-auto custom-scrollbar">
                 {/* Step 1: Identity */}
                 {step === 1 && (
-                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
+                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300 py-2">
                         <div className="space-y-3">
                             <label className="block">
                                 <span className="text-lg font-bold text-gray-900 block mb-1">Who do you want to become?</span>
@@ -88,12 +109,40 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                                 />
                             </label>
                         </div>
+
+                        <div className="space-y-3">
+                            <label className="block">
+                                <span className="text-sm font-bold text-gray-900 block mb-3">Choose an Icon</span>
+                                <div className="grid grid-cols-8 gap-2">
+                                    {iconOptions.map((option) => {
+                                        const Icon = option.icon
+                                        const isSelected = formData.iconName === option.name
+                                        return (
+                                            <button
+                                                key={option.name}
+                                                onClick={() => setFormData({ ...formData, iconName: option.name })}
+                                                className={`
+                                                    h-10 flex items-center justify-center rounded-lg transition-all duration-200
+                                                    ${isSelected
+                                                        ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
+                                                        : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                                    }
+                                                `}
+                                                title={option.name}
+                                            >
+                                                <Icon size={18} />
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 )}
 
                 {/* Step 2: Plan */}
                 {step === 2 && (
-                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
+                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300 py-2">
                         {/* Frequency */}
                         <div>
                             <label className="text-sm font-bold text-gray-900 block mb-3">Frequency</label>
@@ -144,6 +193,24 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                             </div>
                         </div>
 
+                        {/* Color Selection */}
+                        <div>
+                            <label className="text-sm font-bold text-gray-900 block mb-3">Color Theme</label>
+                            <div className="flex flex-wrap gap-2">
+                                {HABIT_COLORS.map((color) => (
+                                    <button
+                                        key={color.name}
+                                        onClick={() => setFormData({ ...formData, color: color.name })}
+                                        className={`size-8 rounded-full transition-all duration-300 ${color.primary} ${formData.color === color.name
+                                            ? "ring-4 ring-gray-100 scale-110"
+                                            : "hover:scale-110 opacity-70 hover:opacity-100"
+                                            }`}
+                                        title={color.label}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Target */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-900 block">Daily Target</label>
@@ -170,7 +237,7 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
 
                 {/* Step 3: Stacking */}
                 {step === 3 && (
-                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300">
+                    <div className="space-y-6 animate-in slide-in-from-right-8 duration-300 py-2">
                         <div className="bg-primary/5 p-5 rounded-xl border border-primary/10">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
@@ -205,8 +272,8 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                 )}
             </div>
 
-            {/* Footer Actions */}
-            <div className="p-6 border-t border-gray-100 flex justify-between bg-gray-50/50 rounded-b-2xl">
+            {/* Footer Actions (Fixed) */}
+            <div className="p-6 border-t border-gray-100 flex justify-between bg-gray-50/50 shrink-0">
                 {step > 1 ? (
                     <button
                         onClick={prevStep}

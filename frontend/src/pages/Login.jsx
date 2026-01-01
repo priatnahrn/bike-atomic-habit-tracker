@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
 import { useState } from "react"
-import { Eye, EyeOff, Bike, TrendingUp, Shield, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff } from "lucide-react"
 import Slider from "../components/auth/Slider"
+import pedalIcon from "../assets/images/pedal.png"
+import trackIcon from "../assets/images/track.png"
+import visualizeIcon from "../assets/images/visualize.png"
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -11,19 +14,19 @@ const Login = () => {
 
     const slides = [
         {
-            icon: Bike,
+            icon: pedalIcon,
             title: "Welcome to BIKE",
             description: "Your journey to better habits starts with a single pedal. Track your progress, build momentum, and enjoy the ride.",
             step: 1
         },
         {
-            icon: TrendingUp,
+            icon: trackIcon,
             title: "Track Your Progress",
             description: "Visualize your daily improvements with intuitive charts and streaks. See how far you've come at a glance.",
             step: 2
         },
         {
-            icon: Shield,
+            icon: visualizeIcon,
             title: "Stay Consistent",
             description: "Build an unbreakable habit loop. Our tools help you stay accountable and motivated every single day.",
             step: 3
