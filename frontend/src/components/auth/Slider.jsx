@@ -23,12 +23,12 @@ const Slider = ({ slides }) => {
                     {/* Stacked Card Effect */}
                     <div className="relative w-full">
                         {/* Back Layer 2 */}
-                        <div className="absolute inset-0 bg-primary/10 rounded-3xl transform rotate-6 translate-y-4 scale-95 z-0"></div>
+                        <div className="absolute inset-0 bg-primary/10 rounded-2xl transform rotate-6 translate-y-4 scale-95 z-0"></div>
                         {/* Back Layer 1 */}
-                        <div className="absolute inset-0 bg-primary/20 rounded-3xl transform -rotate-3 translate-y-2 z-0"></div>
+                        <div className="absolute inset-0 bg-primary/20 rounded-2xl transform -rotate-3 translate-y-2 z-0"></div>
 
                         {/* Main Card */}
-                        <div className="relative z-10 bg-white p-12 rounded-3xl border border-gray-100">
+                        <div className="relative z-10 bg-white p-12 rounded-2xl border border-gray-100">
                             <div className="mb-8">
                                 <img src={slide.icon} alt="" className="w-16 h-16 object-contain" />
                             </div>

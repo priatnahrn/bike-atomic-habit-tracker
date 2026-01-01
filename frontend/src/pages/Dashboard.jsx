@@ -6,6 +6,7 @@ import { Footprints, BookOpen, Diamond, Droplets, Flame, Edit, Plus, TrendingUp,
 import Modal from "../components/Modal"
 import AddHabitForm from "../components/AddHabitForm"
 import HabitDetail from "../components/HabitDetail"
+import Breadcrumb from "../components/Breadcrumb"
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -151,50 +152,47 @@ const Dashboard = () => {
         setIsModalOpen(false)
     }
 
+    // --- Dynamic Greeting Logic ---
+    const getGreeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return { text: "Good Morning,", icon: CloudSun, color: "text-orange-500", bg: "bg-orange-50" }
+        if (hour < 18) return { text: "Good Afternoon,", icon: Sun, color: "text-blue-500", bg: "bg-blue-50" }
+        return { text: "Good Evening,", icon: Moon, color: "text-indigo-500", bg: "bg-indigo-50" }
+    }
+    const greeting = getGreeting()
+    // Explicitly rename the component variable to avoid conflict
+    const GreetingIconComponent = greeting.icon
+
     // Mock Daily Goal Data
     const dailyGoal = { current: 3, total: 6 } // Adjusted total based on habits count
     const progressPercentage = (dailyGoal.current / dailyGoal.total) * 100
 
-    // Greeting Logic
-    const date = new Date()
-    const hour = date.getHours()
-    const dateString = date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })
-
-    let greeting = "Good Morning"
-    let greetingBg = "bg-orange-50"
-    let greetingTextColor = "text-orange-900"
-    let GreetingIcon = Sun
-
-    if (hour >= 12 && hour < 18) {
-        greeting = "Good Afternoon"
-        greetingBg = "bg-blue-50"
-        greetingTextColor = "text-blue-900"
-        GreetingIcon = CloudSun
-    } else if (hour >= 18 || hour < 5) {
-        greeting = "Good Evening"
-        greetingBg = "bg-indigo-50"
-        greetingTextColor = "text-indigo-900"
-        GreetingIcon = Moon
-    }
-
     return (
         <DashboardLayout onOpenHabitModal={() => setIsModalOpen(true)}>
-            <div className="space-y-8 max-w-7xl mx-auto">
+            <div className="flex flex-col gap-8">
+                {/* Breadcrumb */}
+                <div className="px-1">
+                    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
+                </div>
 
-                {/* 1. Greeting Section */}
-                <div className={`rounded-3xl p-8 ${greetingBg} relative overflow-hidden transition-colors duration-500`}>
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <div className={`text-sm font-bold uppercase tracking-wider mb-2 opacity-70 ${greetingTextColor}`}>{dateString}</div>
-                            <h1 className={`text-3xl md:text-4xl font-extrabold mb-2 ${greetingTextColor}`}>{greeting}, User!</h1>
-                            <p className={`font-medium text-lg opacity-90 ${greetingTextColor}`}>Ready to crush your goals today?</p>
+                {/* Greeting Section */}
+                <div className={`relative p-8 rounded-2xl ${greeting.bg} overflow-hidden transition-colors duration-500`}>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-2">
+                            <span className={`text-sm font-bold tracking-wider uppercase ${greeting.color} opacity-80`}>
+                                {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+                            </span>
                         </div>
-                        <div className={`hidden sm:flex items-center justify-center size-24 rounded-full bg-white/50 backdrop-blur-sm ${greetingTextColor}`}>
-                            <GreetingIcon size={48} strokeWidth={1.5} />
-                        </div>
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-2">
+                            {greeting.text} <span className={greeting.color}>Alex!</span>
+                        </h1>
+                        <p className="text-lg font-medium text-gray-600 max-w-md">
+                            Ready to crush your goals today? You have <span className="font-bold text-gray-900">{habits.filter(h => !h.isCompleted).length} pending habits</span>.
+                        </p>
                     </div>
+
                     {/* Decorative Elements */}
-                    <GreetingIcon className={`absolute -bottom-10 -right-10 size-64 opacity-5 pointer-events-none ${greetingTextColor}`} />
+                    <GreetingIconComponent className={`absolute -bottom-10 -right-10 size-64 opacity-5 pointer-events-none ${greeting.color}`} />
                 </div>
 
                 {/* 2. Daily Goal Section */}
@@ -239,35 +237,34 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-            </div>
+                {/* Floating Action Button (Mobile Only) */}
+                <div className="fixed bottom-6 right-6 lg:hidden z-50">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center justify-center size-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 hover:scale-105 transition-all duration-300"
+                    >
+                        <Plus size={24} />
+                    </button>
+                </div>
 
-            {/* Floating Action Button (Mobile Only) */}
-            <div className="fixed bottom-6 right-6 lg:hidden z-50">
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center size-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 hover:scale-105 transition-all duration-300"
-                >
-                    <Plus size={24} />
-                </button>
+                <Modal isOpen={isModalOpen || !!selectedHabit} onClose={() => { setIsModalOpen(false); setSelectedHabit(null); setIsEditing(false) }}>
+                    {isEditing ? (
+                        <AddHabitForm
+                            initialData={selectedHabit}
+                            onClose={() => { setIsEditing(false); setSelectedHabit(null); setIsModalOpen(false) }}
+                            onAddHabit={handleUpdateHabit}
+                        />
+                    ) : selectedHabit ? (
+                        <HabitDetail
+                            habit={selectedHabit}
+                            onClose={() => setSelectedHabit(null)}
+                            onEdit={() => setIsEditing(true)}
+                        />
+                    ) : (
+                        <AddHabitForm onClose={() => setIsModalOpen(false)} onAddHabit={handleAddHabit} />
+                    )}
+                </Modal>
             </div>
-
-            <Modal isOpen={isModalOpen || !!selectedHabit} onClose={() => { setIsModalOpen(false); setSelectedHabit(null); setIsEditing(false) }}>
-                {isEditing ? (
-                    <AddHabitForm
-                        initialData={selectedHabit}
-                        onClose={() => { setIsEditing(false); setSelectedHabit(null); setIsModalOpen(false) }}
-                        onAddHabit={handleUpdateHabit}
-                    />
-                ) : selectedHabit ? (
-                    <HabitDetail
-                        habit={selectedHabit}
-                        onClose={() => setSelectedHabit(null)}
-                        onEdit={() => setIsEditing(true)}
-                    />
-                ) : (
-                    <AddHabitForm onClose={() => setIsModalOpen(false)} onAddHabit={handleAddHabit} />
-                )}
-            </Modal>
         </DashboardLayout>
     )
 }

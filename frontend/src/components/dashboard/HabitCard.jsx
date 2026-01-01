@@ -16,7 +16,7 @@ const HabitCard = ({ habit, onClick }) => {
     return (
         <div
             onClick={onClick}
-            className={`group flex flex-col justify-between h-64 p-6 rounded-3xl border transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer ${completed
+            className={`group flex flex-col justify-between h-64 p-6 rounded-2xl border transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer ${completed
                 ? `${theme.light} ${theme.borderCompleted || "border-gray-200"}` // Light bg + light border when completed
                 : `bg-white border-gray-100 ${theme.hoverBorder} hover:bg-gray-50/50`
                 }`}>

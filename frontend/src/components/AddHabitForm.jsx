@@ -53,7 +53,7 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
     }
 
     return (
-        <div className="flex flex-col h-[90vh] overflow-hidden rounded-3xl bg-white">
+        <div className="flex flex-col h-[90vh] overflow-hidden rounded-2xl bg-white">
             {/* Header (Fixed) */}
             <div className="p-8 pb-0 shrink-0">
                 <div className="flex items-center justify-between mb-2">

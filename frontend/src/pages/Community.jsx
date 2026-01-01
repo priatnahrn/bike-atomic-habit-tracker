@@ -1,17 +1,23 @@
 import { useState } from "react"
 import DashboardLayout from "../components/dashboard/DashboardLayout"
+import Breadcrumb from "../components/Breadcrumb"
+import CommunityBottomNav from "../components/community/CommunityBottomNav"
 import {
     Search, Users, Heart, MessageCircle, Share2,
-    MoreHorizontal, MapPin, Award, Flame, Zap
+    MoreHorizontal, MapPin, Award, Flame, Zap,
+    ShieldCheck, Lock, Globe
 } from "lucide-react"
+import { Link } from "react-router-dom"
 
 const Community = () => {
+    const [activeTab, setActiveTab] = useState('feed') // 'feed', 'explore', 'tribes'
+
     // --- Mock Data ---
     const myTribes = [
-        { id: 1, name: "5AM Club", members: "12.5k", icon: "🌅", color: "bg-orange-100 text-orange-600" },
-        { id: 2, name: "Marathon Runners", members: "8.2k", icon: "🏃‍♂️", color: "bg-blue-100 text-blue-600" },
-        { id: 3, name: "Bookworms", members: "5.1k", icon: "📚", color: "bg-purple-100 text-purple-600" },
-        { id: 4, name: "Meditation", members: "22k", icon: "🧘", color: "bg-green-100 text-green-600" },
+        { id: 1, name: "BIKE Official", members: "128k", icon: "🚲", color: "bg-orange-100 text-orange-600", type: "official" },
+        { id: 2, name: "5AM Club", members: "12.5k", icon: "🌅", color: "bg-blue-100 text-blue-600", type: "public" },
+        { id: 3, name: "Marathon Runners", members: "8.2k", icon: "🏃‍♂️", color: "bg-green-100 text-green-600", type: "public" },
+        { id: 4, name: "Bookworms", members: "5.1k", icon: "📚", color: "bg-purple-100 text-purple-600", type: "private" },
     ]
 
     const posts = [
@@ -43,42 +49,67 @@ const Community = () => {
     ]
 
     const trendingTribes = [
-        { id: 1, name: "No Sugar Challenge", members: "+1.2k this week" },
-        { id: 2, name: "Code Every Day", members: "+850 this week" },
-        { id: 3, name: "Yoga for Beginners", members: "+600 this week" },
+        { id: 1, name: "No Sugar Challenge", members: "+1.2k", type: "public" },
+        { id: 2, name: "Code Every Day", members: "+850", type: "official" },
+        { id: 3, name: "Secret Yoga Group", members: "+600", type: "private" },
     ]
+
+    // Helper to render type icon
+    const renderTribeBadge = (type) => {
+        switch (type) {
+            case 'official':
+                return <ShieldCheck size={14} className="text-blue-500 fill-blue-50" />
+            case 'private':
+                return <Lock size={14} className="text-gray-400" />
+            default:
+                return null
+        }
+    }
+
+    // Helper to render tribe list item
+    const renderTribeItem = (tribe) => (
+        <Link to={`/community/${tribe.id}`} key={tribe.id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 transition-colors text-left group border border-transparent hover:border-gray-100">
+            <span className={`size-10 rounded-xl flex items-center justify-center text-lg ${tribe.color} group-hover:scale-105 transition-transform`}>{tribe.icon}</span>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-bold text-gray-900 truncate">{tribe.name}</p>
+                    {renderTribeBadge(tribe.type)}
+                </div>
+                <p className="text-xs font-bold text-gray-400">{tribe.members} Members</p>
+            </div>
+        </Link>
+    )
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col gap-8">
-                {/* Header */}
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Community</h1>
-                    <p className="text-gray-500 font-medium">Connect with people who share your habits.</p>
+            <div className="flex flex-col gap-6 pb-20 lg:pb-0">
+                {/* Header & Breadcrumb */}
+                <div className="flex flex-col gap-4">
+                    <Breadcrumb items={[
+                        { label: 'Home', href: '/' },
+                        { label: 'Dashboard', href: '/dashboard' },
+                        { label: 'Community', active: true }
+                    ]} />
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Community</h1>
+                        <p className="text-gray-500 font-medium">Connect with people who share your habits.</p>
+                    </div>
                 </div>
 
-                {/* 3-Column Layout */}
+                {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                    {/* LEFT COLUMN: My Tribes (3 cols) */}
-                    <div className="hidden lg:flex lg:col-span-3 flex-col gap-6 sticky top-0">
-                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                    {/* LEFT COLUMN: My Tribes (Visible on Desktop OR 'tribes' tab on mobile) */}
+                    <div className={`${activeTab === 'tribes' ? 'flex' : 'hidden'} lg:flex lg:col-span-3 flex-col gap-6 sticky top-0`}>
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col gap-4">
                             <h3 className="font-bold text-gray-900 flex items-center gap-2">
                                 <Users size={18} />
                                 Your Tribes
                             </h3>
                             <div className="flex flex-col gap-2">
-                                {myTribes.map(tribe => (
-                                    <button key={tribe.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left group">
-                                        <span className={`size-10 rounded-lg flex items-center justify-center text-lg ${tribe.color} group-hover:scale-110 transition-transform`}>{tribe.icon}</span>
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-900">{tribe.name}</p>
-                                            <p className="text-xs font-bold text-gray-400">{tribe.members} Members</p>
-                                        </div>
-                                    </button>
-                                ))}
-                                <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left text-primary font-bold text-sm mt-2">
-                                    <div className="size-10 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
+                                {myTribes.map(renderTribeItem)}
+                                <button className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 transition-colors text-left text-primary font-bold text-sm mt-2 border border-transparent hover:border-gray-100">
+                                    <div className="size-10 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
                                         <Search size={18} />
                                     </div>
                                     Discover Tribes
@@ -87,24 +118,24 @@ const Community = () => {
                         </div>
                     </div>
 
-                    {/* CENTER COLUMN: Feed (6 cols) */}
-                    <div className="lg:col-span-6 flex flex-col gap-6">
+                    {/* CENTER COLUMN: Feed (Visible on Desktop OR 'feed' tab on mobile) */}
+                    <div className={`${activeTab === 'feed' ? 'flex' : 'hidden'} lg:flex lg:col-span-6 flex-col gap-6`}>
                         {/* Create Post Input */}
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-center">
+                        <div className="bg-white p-4 rounded-2xl border border-gray-100 flex gap-4 items-center">
                             <div className="size-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">ME</div>
                             <input
                                 type="text"
                                 placeholder="Share your progress..."
-                                className="flex-1 bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl px-4 py-3 text-sm font-medium transition-colors outline-none border hover:bg-gray-100"
+                                className="flex-1 bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-2xl px-4 py-3 text-sm font-medium transition-colors outline-none border hover:bg-gray-100"
                             />
-                            <button className="p-3 rounded-xl bg-gray-100 text-gray-500 hover:bg-primary hover:text-white transition-colors">
+                            <button className="p-3 rounded-2xl bg-gray-100 text-gray-500 hover:bg-primary hover:text-white transition-colors">
                                 <Zap size={20} className="fill-current" />
                             </button>
                         </div>
 
                         {/* Posts Feed */}
                         {posts.map(post => (
-                            <div key={post.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div key={post.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-orange-200 transition-colors duration-300">
                                 {/* Post Header */}
                                 <div className="p-4 flex justify-between items-center">
                                     <div className="flex items-center gap-3">
@@ -131,7 +162,7 @@ const Community = () => {
                                 </div>
 
                                 {post.image && (
-                                    <div className="mt-3 mx-4 h-64 bg-gray-100 rounded-xl relative overflow-hidden group cursor-pointer">
+                                    <div className="mt-3 mx-4 h-64 bg-gray-100 rounded-2xl relative overflow-hidden group cursor-pointer">
                                         {/* Placeholder for image */}
                                         <div className="absolute inset-0 flex items-center justify-center text-gray-400 bg-gray-200">
                                             <MapPin size={32} />
@@ -160,36 +191,44 @@ const Community = () => {
                         ))}
                     </div>
 
-                    {/* RIGHT COLUMN: Explore/Trending (3 cols) */}
-                    <div className="hidden lg:flex lg:col-span-3 flex-col gap-6 sticky top-0">
-                        <div className="bg-gradient-to-br from-primary to-orange-600 rounded-2xl p-6 text-white shadow-lg shadow-orange-500/20">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="bg-white/20 p-2 rounded-lg">
-                                    <Award className="text-white" size={24} />
+                    {/* RIGHT COLUMN: Explore/Trending (Visible on Desktop OR 'explore' tab on mobile) */}
+                    <div className={`${activeTab === 'explore' ? 'flex' : 'hidden'} lg:flex lg:col-span-3 flex-col gap-6 sticky top-0`}>
+                        <div className="bg-gradient-to-br from-primary to-orange-600 rounded-2xl p-6 text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-3 opacity-10">
+                                <Award size={100} className="fill-white" />
+                            </div>
+                            <div className="relative z-10 flex items-center gap-4 mb-4">
+                                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">
+                                    <Award className="text-white fill-white" size={24} />
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-orange-100 uppercase tracking-wider">Weekly Challenge</p>
-                                    <h3 className="font-bold text-lg">Walk 10k Steps</h3>
+                                    <h3 className="font-bold text-lg leading-tight">Walk 10k Steps</h3>
                                 </div>
                             </div>
-                            <p className="text-sm text-orange-50 mb-4 opacity-90">Join 1,204 others in this week's movement challenge.</p>
-                            <button className="w-full py-2.5 bg-white text-primary rounded-xl font-bold text-sm hover:bg-orange-50 transition-colors">Join Challenge</button>
+                            <p className="relative z-10 text-sm text-orange-50 mb-4 opacity-90 leading-relaxed">Join 1,204 others in this week's movement challenge.</p>
+                            <button className="relative z-10 w-full py-3 bg-white text-primary rounded-xl font-bold text-sm hover:bg-orange-50 transition-colors shadow-sm">Join Challenge</button>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col gap-4">
                             <h3 className="font-bold text-gray-900 flex items-center gap-2">
                                 <Flame size={18} className="text-orange-500 fill-orange-500" />
                                 Trending Tribes
                             </h3>
                             <div className="flex flex-col gap-4 mt-2">
                                 {trendingTribes.map(tribe => (
-                                    <div key={tribe.id} className="flex justify-between items-center group cursor-pointer">
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">{tribe.name}</p>
-                                            <p className="text-xs font-bold text-green-500">{tribe.members}</p>
+                                    <Link to={`/community/${tribe.id}`} key={tribe.id} className="flex justify-between items-center group cursor-pointer hover:bg-gray-50 -mx-2 p-2 rounded-xl transition-colors">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <p className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors truncate">{tribe.name}</p>
+                                                {renderTribeBadge(tribe.type)}
+                                            </div>
+                                            <p className="text-xs font-bold text-green-500">{tribe.members} joined</p>
                                         </div>
-                                        <button className="bg-gray-50 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">Join</button>
-                                    </div>
+                                        <button className="bg-gray-50 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors ml-2 shrink-0">
+                                            {tribe.type === 'private' ? 'Request' : 'Join'}
+                                        </button>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -197,6 +236,9 @@ const Community = () => {
 
                 </div>
             </div>
+
+            {/* Mobile Bottom Nav */}
+            <CommunityBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
         </DashboardLayout>
     )
 }

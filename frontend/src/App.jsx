@@ -7,6 +7,7 @@ import Login from "./pages/Login"
 import Dashboard from "./pages/Dashboard"
 import Reports from "./pages/Reports"
 import Community from "./pages/Community"
+import CommunityDetail from "./pages/CommunityDetail"
 import Settings from "./pages/Settings"
 import ForgotPassword from './pages/ForgotPassword'
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/community/:id" element={<CommunityDetail />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>

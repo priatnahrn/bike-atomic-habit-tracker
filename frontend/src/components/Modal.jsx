@@ -12,7 +12,7 @@ const Modal = ({ isOpen, onClose, children }) => {
             ></div>
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-4xl bg-white rounded-3xl border border-gray-100 transform transition-all animate-in fade-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-4xl bg-white rounded-2xl border border-gray-100 transform transition-all animate-in fade-in zoom-in-95 duration-300">
                 <button
                     onClick={onClose}
                     className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors z-10"
