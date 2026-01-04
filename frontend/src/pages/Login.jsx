@@ -1,16 +1,19 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import Slider from "../components/auth/Slider"
 import pedalIcon from "../assets/images/pedal.png"
 import trackIcon from "../assets/images/track.png"
 import visualizeIcon from "../assets/images/visualize.png"
+import Toast from "../components/ui/Toast"
 
 const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [error, setError] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [toast, setToast] = useState({ message: "", type: "" })
+    const navigate = useNavigate()
 
     const slides = [
         {
@@ -35,20 +38,58 @@ const Login = () => {
 
     const isFormValid = email.trim() !== "" && password.trim() !== "";
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setToast({ message: "", type: "" });
+        setIsLoading(true);
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setError("Please enter a valid email address");
+            setToast({ message: "Please enter a valid email address", type: "error" });
+            setIsLoading(false);
             return;
         }
 
-        setError("Invalid email or password");
+        try {
+            const response = await fetch("http://localhost:2000/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || "Login failed")
+            }
+
+            // Successful login
+            localStorage.setItem("token", data.token)
+            localStorage.setItem("user", JSON.stringify(data.user))
+
+            setToast({ message: "Welcome back!", type: "success" });
+
+            // Delay navigation slightly to show success toast
+            setTimeout(() => {
+                navigate("/dashboard")
+            }, 1000);
+
+        } catch (err) {
+            setToast({ message: err.message, type: "error" });
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
         <div className="grid md:grid-cols-2 min-h-screen font-manrope">
+            {toast.message && <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: "", type: "" })} />}
+
             {/* Left Side - Onboarding Slider */}
             <div className="hidden md:flex flex-col justify-center items-center bg-gray-50 p-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/5"></div>
@@ -71,9 +112,9 @@ const Login = () => {
                                 value={email}
                                 onChange={(e) => {
                                     setEmail(e.target.value);
-                                    setError("");
+                                    setToast({ message: "", type: "" });
                                 }}
-                                className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${error ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
+                                className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${toast.type === 'error' && toast.message.toLowerCase().includes('email') ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
                                     }`}
                                 placeholder="Enter your email"
                                 autoComplete="off"
@@ -92,9 +133,9 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => {
                                         setPassword(e.target.value);
-                                        setError("");
+                                        setToast({ message: "", type: "" });
                                     }}
-                                    className={`border rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${error ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
+                                    className={`border rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${toast.type === 'error' && toast.message.toLowerCase().includes('credentials') ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
                                         }`}
                                     placeholder="Enter your password"
                                     autoComplete="new-password"
@@ -109,18 +150,11 @@ const Login = () => {
                             </div>
                         </div>
 
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-50 text-red-500 text-sm font-medium flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" /></svg>
-                                {error}
-                            </div>
-                        )}
-
                         <button
-                            disabled={!isFormValid}
-                            className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                            disabled={!isFormValid || isLoading}
+                            className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center"
                         >
-                            Sign In
+                            {isLoading ? "Signing In..." : "Sign In"}
                         </button>
 
                         <div className="text-center text-sm text-gray-500 mt-2">

@@ -34,7 +34,8 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
         time: "",
         location: "",
         stackingCue: "",
-        target: ""
+        target: "",
+        repeatDays: [] // Initialize as empty array
     })
 
     const handleChange = (e) => {
@@ -150,7 +151,7 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                                 {["Daily", "Weekly", "Monthly"].map((freq) => (
                                     <button
                                         key={freq}
-                                        onClick={() => setFormData({ ...formData, frequency: freq })}
+                                        onClick={() => setFormData({ ...formData, frequency: freq, repeatDays: [] })}
                                         className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 ${formData.frequency === freq
                                             ? "bg-white text-primary shadow-md shadow-gray-200 ring-1 ring-black/5"
                                             : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
@@ -161,6 +162,95 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Repeat Days Selection (Only for Weekly) */}
+                        {formData.frequency === "Weekly" && (
+                            <div className="animate-in slide-in-from-top-2 duration-200">
+                                <label className="text-sm font-bold text-gray-900 block mb-3">Repeat on</label>
+                                <div className="flex justify-between gap-2">
+                                    {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => {
+                                        const fullDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                                        const fullDay = fullDays[index]
+                                        const isSelected = formData.repeatDays?.includes(fullDay)
+
+                                        return (
+                                            <button
+                                                key={index}
+                                                onClick={() => {
+                                                    const currentDays = formData.repeatDays || []
+                                                    const newDays = isSelected
+                                                        ? currentDays.filter(d => d !== fullDay)
+                                                        : [...currentDays, fullDay]
+                                                    setFormData({ ...formData, repeatDays: newDays })
+                                                }}
+                                                className={`
+                                                    size-10 rounded-full font-bold text-sm transition-all duration-200
+                                                    ${isSelected
+                                                        ? "bg-primary text-white shadow-md shadow-primary/25 scale-110"
+                                                        : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                                    }
+                                                `}
+                                                title={fullDay}
+                                            >
+                                                {day}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Monthly Date Selection */}
+                        {formData.frequency === "Monthly" && (
+                            <div className="animate-in slide-in-from-top-2 duration-200">
+                                <label className="text-sm font-bold text-gray-900 block mb-3">Select Dates</label>
+                                <div className="grid grid-cols-7 gap-2">
+                                    {Array.from({ length: 31 }, (_, i) => (i + 1).toString()).map((date) => {
+                                        const isSelected = formData.repeatDays?.includes(date)
+                                        return (
+                                            <button
+                                                key={date}
+                                                onClick={() => {
+                                                    const currentDays = formData.repeatDays || []
+                                                    const newDays = isSelected
+                                                        ? currentDays.filter(d => d !== date)
+                                                        : [...currentDays, date]
+                                                    setFormData({ ...formData, repeatDays: newDays })
+                                                }}
+                                                className={`
+                                                    h-8 rounded-lg font-bold text-xs transition-all duration-200
+                                                    ${isSelected
+                                                        ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
+                                                        : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                                    }
+                                                `}
+                                            >
+                                                {date}
+                                            </button>
+                                        )
+                                    })}
+                                    <button
+                                        onClick={() => {
+                                            const currentDays = formData.repeatDays || []
+                                            const isSelected = currentDays.includes("Last")
+                                            const newDays = isSelected
+                                                ? currentDays.filter(d => d !== "Last")
+                                                : [...currentDays, "Last"]
+                                            setFormData({ ...formData, repeatDays: newDays })
+                                        }}
+                                        className={`
+                                            col-span-4 h-8 rounded-lg font-bold text-xs transition-all duration-200
+                                            ${formData.repeatDays?.includes("Last")
+                                                ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
+                                                : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                            }
+                                        `}
+                                    >
+                                        Last Day
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -229,7 +319,11 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
                                 <div className="size-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-[10px]">i</div>
                             </div>
                             <p className="text-sm text-gray-800 font-medium leading-relaxed italic">
-                                "{formData.frequency === "Daily" ? "Every day" : formData.frequency === "Weekly" ? "Every week" : "Every month"}, I will <span className="text-primary font-bold">{formData.habitName || "..."}</span> at <span className="text-primary font-bold">{formData.time || "..."}</span> in <span className="text-primary font-bold">{formData.location || "..."}</span>."
+                                "{formData.frequency === "Weekly" && formData.repeatDays?.length > 0
+                                    ? `Every ${formData.repeatDays.join(", ")}`
+                                    : formData.frequency === "Monthly" && formData.repeatDays?.length > 0
+                                        ? `On the ${formData.repeatDays.map(d => d === "Last" ? "Last day" : d + (["1", "21", "31"].includes(d) ? "st" : ["2", "22"].includes(d) ? "nd" : ["3", "23"].includes(d) ? "rd" : "th")).join(", ")}`
+                                        : formData.frequency === "Daily" ? "Every day" : formData.frequency === "Weekly" ? "Every week" : "Every month"}, I will <span className="text-primary font-bold">{formData.habitName || "..."}</span> at <span className="text-primary font-bold">{formData.time || "..."}</span> in <span className="text-primary font-bold">{formData.location || "..."}</span>."
                             </p>
                         </div>
                     </div>

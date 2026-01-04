@@ -22,12 +22,34 @@ const Onboarding = () => {
         }
     }
 
-    const nextStep = () => {
+    const nextStep = async () => {
         if (step < totalSteps) {
             setStep(step + 1)
         } else {
-            // Ideally save preferences to backend here
-            navigate("/dashboard")
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:2000/api/user/onboarding", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        goal,
+                        focusAreas
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to save preferences");
+                }
+
+                navigate("/dashboard")
+            } catch (error) {
+                console.error("Onboarding error:", error);
+                // Optionally show error toast here, but for now just navigate or alert
+                navigate("/dashboard"); // Fallback to dashboard even if save fails, or handle differently
+            }
         }
     }
 

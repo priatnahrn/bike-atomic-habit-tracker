@@ -7,9 +7,23 @@ const Header = ({ onMenuClick, title, isSidebarCollapsed }) => {
     const dropdownRef = useRef(null)
 
     // Mock data
-    const userName = "Alex M."
-    const userEmail = "alex@example.com"
-    const userPlan = "Pro" // "Free", "Pro", "Premium"
+    const [user, setUser] = useState({ name: "User", email: "user@example.com" })
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser))
+            } catch (e) {
+                console.error("Failed to parse user data", e)
+            }
+        }
+    }, [])
+
+    const userName = user.name || "User"
+    const userEmail = user.email || "user@example.com"
+    const userInitials = userName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()
+    const userPlan = "Free" // "Free", "Pro", "Premium"
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -71,7 +85,7 @@ const Header = ({ onMenuClick, title, isSidebarCollapsed }) => {
                             className="flex items-center gap-3 p-1  bg-white  hover:border-primary/20 transition-all duration-200 group pl-1 pr-1 md:pr-4 md:pl-1.5"
                         >
                             <div className="size-9 rounded-full bg-gradient-to-br from-primary to-orange-400 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-orange-200">
-                                AM
+                                {userInitials}
                             </div>
 
                             <div className="hidden md:flex flex-col text-left">
@@ -87,7 +101,7 @@ const Header = ({ onMenuClick, title, isSidebarCollapsed }) => {
                                 {/* User Header */}
                                 <div className="p-4 mb-2 flex items-center gap-4 border-b border-gray-50 pb-4 bg-gray-50/50 rounded-xl mx-1 mt-1">
                                     <div className="size-12 rounded-full bg-white flex items-center justify-center text-primary font-bold text-lg shadow-sm">
-                                        AM
+                                        {userInitials}
                                     </div>
                                     <div className="flex-1 overflow-hidden">
                                         <h4 className="font-bold text-gray-900 truncate text-lg">{userName}</h4>

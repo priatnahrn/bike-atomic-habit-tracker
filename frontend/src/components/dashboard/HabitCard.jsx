@@ -2,35 +2,36 @@ import { CheckCircle, Flame, Calendar, Trophy, Check } from "lucide-react"
 import { useState } from "react"
 import { getColorClass } from "../../utils/colors"
 
-const HabitCard = ({ habit, onClick }) => {
-    const { title, subtitle, icon: Icon, streak, frequency, target, isCompleted = false, color } = habit
-    const [completed, setCompleted] = useState(isCompleted)
+const HabitCard = ({ habit, onClick, onToggle }) => {
+    const { id, title, subtitle, icon: Icon, streak, frequency, target, isCompleted = false, color } = habit
 
     // Get color theme based on habit.color
     const theme = getColorClass(color)
 
     const handleCheckIn = () => {
-        setCompleted(!completed)
+        if (onToggle) {
+            onToggle(id, isCompleted)
+        }
     }
 
     return (
         <div
             onClick={onClick}
-            className={`group flex flex-col justify-between h-64 p-6 rounded-2xl border transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer ${completed
+            className={`group flex flex-col justify-between h-64 p-6 rounded-2xl border transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer ${isCompleted
                 ? `${theme.light} ${theme.borderCompleted || "border-gray-200"}` // Light bg + light border when completed
                 : `bg-white border-gray-100 ${theme.hoverBorder} hover:bg-gray-50/50`
                 }`}>
             {/* Background Icon Effect */}
             <Icon
                 strokeWidth={1}
-                className={`absolute -right-4 -bottom-4 transition-colors duration-500 select-none ${completed ? `${theme.text} opacity-10` : `text-gray-50 group-hover:${theme.text} group-hover:opacity-5`
+                className={`absolute -right-4 -bottom-4 transition-colors duration-500 select-none ${isCompleted ? `${theme.text} opacity-10` : `text-gray-50 group-hover:${theme.text} group-hover:opacity-5`
                     }`}
                 size={140}
             />
 
             {/* Header */}
             <div className="flex justify-between items-start z-10">
-                <div className={`p-3 rounded-2xl transition-colors duration-300 ${completed ? `${theme.primary} text-white` : `bg-gray-50 text-gray-900 group-hover:${theme.light} group-hover:${theme.text}`
+                <div className={`p-3 rounded-2xl transition-colors duration-300 ${isCompleted ? `${theme.primary} text-white` : `bg-gray-50 text-gray-900 group-hover:${theme.light} group-hover:${theme.text}`
                     }`}>
                     <Icon size={24} />
                 </div>
@@ -44,7 +45,7 @@ const HabitCard = ({ habit, onClick }) => {
             {/* Title & Info */}
             <div className="mt-4 z-10">
                 <div className="flex items-center justify-between">
-                    <h2 className={`text-xl font-extrabold leading-tight transition-colors duration-300 ${completed ? theme.text : `text-gray-900 group-hover:${theme.text}`
+                    <h2 className={`text-xl font-extrabold leading-tight transition-colors duration-300 ${isCompleted ? theme.text : `text-gray-900 group-hover:${theme.text}`
                         }`}>
                         {title}
                     </h2>
@@ -71,12 +72,12 @@ const HabitCard = ({ habit, onClick }) => {
                         e.stopPropagation()
                         handleCheckIn()
                     }}
-                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-bold transition-all duration-300 ${completed
+                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-bold transition-all duration-300 ${isCompleted
                         ? `${theme.button} text-white hover:opacity-90`
                         : `bg-gray-100 text-gray-900 hover:${theme.button} hover:text-white`
                         }`}
                 >
-                    {completed ? (
+                    {isCompleted ? (
                         <>
                             <CheckCircle size={20} />
                             Completed

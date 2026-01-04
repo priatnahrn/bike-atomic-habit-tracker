@@ -1,22 +1,59 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { Eye, EyeOff, Check, X, ArrowRight, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Check, X } from "lucide-react"
 import Slider from "../components/auth/Slider"
 import pedalIcon from "../assets/images/pedal.png"
 import trackIcon from "../assets/images/track.png"
 import visualizeIcon from "../assets/images/visualize.png"
+import Toast from "../components/ui/Toast"
 
 const Register = () => {
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [toast, setToast] = useState({ message: "", type: "" })
     const navigate = useNavigate()
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        // In a real app, you would register the user here
-        navigate("/onboarding")
+        setIsLoading(true)
+        setToast({ message: "", type: "" })
+
+        try {
+            const response = await fetch("http://localhost:2000/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: fullName,
+                    email,
+                    password,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || "Registration failed")
+            }
+
+            // Successful registration
+            localStorage.setItem("token", data.token)
+            localStorage.setItem("user", JSON.stringify(data.user))
+
+            setToast({ message: "Registration successful! Redirecting to setup...", type: "success" })
+            setTimeout(() => {
+                navigate("/onboarding")
+            }, 1000)
+
+        } catch (err) {
+            setToast({ message: err.message, type: "error" })
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const slides = [
@@ -54,6 +91,8 @@ const Register = () => {
 
     return (
         <div className="grid md:grid-cols-2 min-h-screen font-manrope">
+            {toast.message && <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: "", type: "" })} />}
+
             {/* Left Side - Onboarding Slider */}
             <div className="hidden md:flex flex-col justify-center items-center bg-gray-50 p-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-primary/5"></div>
@@ -144,10 +183,10 @@ const Register = () => {
                         )}
 
                         <button
-                            disabled={!isFormValid}
-                            className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                            disabled={!isFormValid || isLoading}
+                            className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center"
                         >
-                            Sign Up
+                            {isLoading ? "Creating Account..." : "Sign Up"}
                         </button>
 
                         <div className="text-center text-sm text-gray-500 mt-2">

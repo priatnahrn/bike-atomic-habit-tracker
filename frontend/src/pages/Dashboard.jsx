@@ -12,96 +12,84 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedHabit, setSelectedHabit] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
+    const [userData, setUserData] = useState(null)
+    const [isLoadingUser, setIsLoadingUser] = useState(true)
 
-    // Load Habits from LocalStorage or use Mock Data
-    const [habits, setHabits] = useState(() => {
-        const defaultHabits = [
-            {
-                id: 1,
-                title: "Morning Run",
-                subtitle: "Identity: A Runner",
-                iconName: "Zap",
-                streak: 12,
-                frequency: "Daily",
-                target: "5 km",
-                isCompleted: false,
-                color: "orange"
-            },
-            {
-                id: 2,
-                title: "Read Books",
-                subtitle: "Identity: A Scholar",
-                iconName: "BookOpen",
-                streak: 45,
-                frequency: "Daily",
-                target: "20 mins",
-                isCompleted: true,
-                color: "blue"
-            },
-            {
-                id: 3,
-                title: "Drink Water",
-                subtitle: "Identity: Healthy Person",
-                iconName: "Droplets",
-                streak: 8,
-                frequency: "Daily",
-                target: "2L",
-                isCompleted: false,
-                color: "teal"
-            },
-            {
-                id: 4,
-                title: "Code Practice",
-                subtitle: "Identity: A Developer",
-                iconName: "Code",
-                streak: 20,
-                frequency: "Daily",
-                target: "1 hour",
-                isCompleted: false,
-                color: "purple"
-            },
-            {
-                id: 5,
-                title: "Meditation",
-                subtitle: "Identity: Calm Mind",
-                iconName: "Moon",
-                streak: 5,
-                frequency: "Daily",
-                target: "10 mins",
-                isCompleted: false,
-                color: "indigo"
-            },
-            {
-                id: 6,
-                title: "Journaling",
-                subtitle: "Reflect on your day",
-                iconName: "Edit",
-                streak: 3,
-                frequency: "Daily",
-                target: "1 Page",
-                isCompleted: false
-            }
-        ]
+    // Load Habits from API
+    const [habits, setHabits] = useState([])
+    const [isLoadingHabits, setIsLoadingHabits] = useState(true)
+    const [showAllHabits, setShowAllHabits] = useState(false)
 
-        const savedHabits = localStorage.getItem("habits")
-        if (savedHabits) {
-            try {
-                const parsed = JSON.parse(savedHabits)
-                // Ensure it's a valid array
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed
-                }
-            } catch (e) {
-                console.error("Failed to parse habits", e)
+    const fetchHabits = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:2000/api/habits", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setHabits(data);
             }
+        } catch (error) {
+            console.error("Failed to fetch habits:", error);
+        } finally {
+            setIsLoadingHabits(false);
         }
-        return defaultHabits
-    })
+    };
 
-    // Save to LocalStorage whenever habits change
+    // Filter Logic
+    const shouldShowHabit = (habit) => {
+        if (showAllHabits) return true;
+        if (!habit.frequency || habit.frequency === "Daily") return true;
+
+        const today = new Date();
+
+        if (habit.frequency === "Weekly") {
+            const currentDay = today.toLocaleDateString('en-US', { weekday: 'long' });
+            return habit.repeatDays?.includes(currentDay);
+        }
+
+        if (habit.frequency === "Monthly") {
+            const currentDate = today.getDate().toString();
+            // Check if today is the last day of the month
+            const isLastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate() === today.getDate();
+
+            if (habit.repeatDays?.includes(currentDate)) return true;
+            if (isLastDay && habit.repeatDays?.includes("Last")) return true;
+            return false;
+        }
+
+        return true;
+    }
+
+    const visibleHabits = habits.filter(shouldShowHabit);
+
+    // Fetch User Data and Habits
     useEffect(() => {
-        localStorage.setItem("habits", JSON.stringify(habits))
-    }, [habits])
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:2000/api/user/me", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserData(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch user:", error);
+            } finally {
+                setIsLoadingUser(false);
+            }
+        };
+
+        fetchUser();
+        fetchHabits();
+    }, []);
+
+    // Save to LocalStorage removed - using API only
 
     // Helper to get Icon component (runtime mapping)
     const getIcon = (name) => {
@@ -114,42 +102,91 @@ const Dashboard = () => {
         return icons[name] || Footprints
     }
 
-    const handleAddHabit = (newHabitData) => {
-        const newHabit = {
-            id: Date.now(),
-            title: newHabitData.habitName,
-            subtitle: newHabitData.identity,
-            iconName: newHabitData.iconName || "Zap",
-            streak: 0,
-            frequency: newHabitData.frequency,
-            target: newHabitData.target,
-            isCompleted: false,
-            ...newHabitData
-        }
+    const handleToggleHabit = async (habitId, currentStatus) => {
+        // Optimistic Update
+        const newStatus = !currentStatus
+        setHabits(habits.map(h =>
+            h.id === habitId
+                ? {
+                    ...h,
+                    isCompleted: newStatus,
+                    streak: newStatus ? h.streak + 1 : Math.max(0, h.streak - 1)
+                }
+                : h
+        ))
 
-        setHabits([...habits, newHabit])
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:2000/api/habits/${habitId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ isCompleted: newStatus })
+            });
+
+            if (!response.ok) {
+                // Revert on failure
+                throw new Error("Failed to update")
+            }
+            // Optionally refresh to get strict server state, but optimistic is smoother
+            // await fetchHabits() 
+        } catch (error) {
+            console.error("Toggle error", error)
+            // Revert state if failed
+            setHabits(habits.map(h =>
+                h.id === habitId ? { ...h, isCompleted: currentStatus, streak: h.streak } : h
+            ))
+        }
     }
 
-    const handleUpdateHabit = (updatedHabitData) => {
-        const updatedHabits = habits.map(habit => {
-            if (habit.id === selectedHabit.id) {
-                return {
-                    ...habit,
-                    title: updatedHabitData.habitName,
-                    subtitle: updatedHabitData.identity,
-                    iconName: updatedHabitData.iconName,
-                    frequency: updatedHabitData.frequency,
-                    target: updatedHabitData.target,
-                    ...updatedHabitData
-                }
-            }
-            return habit
-        })
+    const handleAddHabit = async (newHabitData) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:2000/api/habits", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(newHabitData)
+            });
 
-        setHabits(updatedHabits)
-        setIsEditing(false)
-        setSelectedHabit(null)
-        setIsModalOpen(false)
+            if (response.ok) {
+                await fetchHabits(); // Refresh list
+                setIsModalOpen(false);
+            }
+        } catch (error) {
+            console.error("Failed to create habit:", error);
+        }
+    }
+
+    const handleUpdateHabit = async (updatedHabitData) => {
+        try {
+            const token = localStorage.getItem("token");
+            // Assuming updatedHabitData contains the full habit object from form, or merged data
+            // We need the ID. The form might return just the fields.
+            // selectedHabit has the ID.
+
+            const response = await fetch(`http://localhost:2000/api/habits/${selectedHabit.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedHabitData)
+            });
+
+            if (response.ok) {
+                await fetchHabits();
+                setIsEditing(false)
+                setSelectedHabit(null)
+                setIsModalOpen(false)
+            }
+        } catch (error) {
+            console.error("Failed to update habit:", error);
+        }
     }
 
     // --- Dynamic Greeting Logic ---
@@ -164,8 +201,10 @@ const Dashboard = () => {
     const GreetingIconComponent = greeting.icon
 
     // Mock Daily Goal Data
-    const dailyGoal = { current: 3, total: 6 } // Adjusted total based on habits count
-    const progressPercentage = (dailyGoal.current / dailyGoal.total) * 100
+    const dailyGoal = { current: habits.filter(h => h.isCompleted).length, total: habits.length }
+    const progressPercentage = dailyGoal.total > 0 ? (dailyGoal.current / dailyGoal.total) * 100 : 0
+
+    const userName = userData?.name ? userData.name.split(' ')[0] : 'Legend';
 
     return (
         <DashboardLayout onOpenHabitModal={() => setIsModalOpen(true)}>
@@ -184,10 +223,13 @@ const Dashboard = () => {
                             </span>
                         </div>
                         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-2">
-                            {greeting.text} <span className={greeting.color}>Alex!</span>
+                            {greeting.text} <span className={greeting.color}>{isLoadingUser ? '...' : userName}!</span>
                         </h1>
                         <p className="text-lg font-medium text-gray-600 max-w-md">
-                            Ready to crush your goals today? You have <span className="font-bold text-gray-900">{habits.filter(h => !h.isCompleted).length} pending habits</span>.
+                            {habits.length > 0
+                                ? <span>Ready to crush your goals today? You have <span className="font-bold text-gray-900">{habits.filter(h => !h.isCompleted).length} pending habits</span>.</span>
+                                : <span>Your journey starts here. Let's build your first habit!</span>
+                            }
                         </p>
                     </div>
 
@@ -195,46 +237,109 @@ const Dashboard = () => {
                     <GreetingIconComponent className={`absolute -bottom-10 -right-10 size-64 opacity-5 pointer-events-none ${greeting.color}`} />
                 </div>
 
-                {/* 2. Daily Goal Section */}
-                <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                    <div className="flex justify-between items-center mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-100 rounded-lg text-primary">
-                                <TrendingUp size={20} />
+                {/* 2. Daily Goal Section (Only show if habits exist or create empty state placeholder) */}
+                {habits.length > 0 ? (
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-orange-100 rounded-lg text-primary">
+                                    <TrendingUp size={20} />
+                                </div>
+                                <span className="text-lg font-bold text-gray-900">Daily Goal</span>
                             </div>
-                            <span className="text-lg font-bold text-gray-900">Daily Goal</span>
+                            <span className="text-sm font-bold px-3 py-1.5 rounded-lg bg-orange-50 text-primary border border-orange-100">
+                                {dailyGoal.current}/{dailyGoal.total} Done
+                            </span>
                         </div>
-                        <span className="text-sm font-bold px-3 py-1.5 rounded-lg bg-orange-50 text-primary border border-orange-100">
-                            {dailyGoal.current}/{dailyGoal.total} Done
-                        </span>
-                    </div>
 
-                    <div className="relative pt-2">
-                        <div className="h-5 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-primary rounded-full transition-all duration-1000 ease-out relative"
-                                style={{ width: `${progressPercentage}%` }}
-                            ></div>
+                        <div className="relative pt-2">
+                            <div className="h-5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary rounded-full transition-all duration-1000 ease-out relative"
+                                    style={{ width: `${progressPercentage}%` }}
+                                ></div>
+                            </div>
                         </div>
+
+                        <p className="mt-4 text-sm text-gray-500 font-medium">
+                            "It does not matter how slowly you go as long as you do not stop."
+                        </p>
                     </div>
+                ) : null}
 
-                    <p className="mt-4 text-sm text-gray-500 font-medium">
-                        "It does not matter how slowly you go as long as you do not stop."
-                    </p>
-                </div>
-
-                {/* 3. Habits List */}
+                {/* 3. Habits List or Empty State */}
                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-gray-900">Your Habits</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {habits.map((habit) => (
-                            <HabitCard
-                                key={habit.id}
-                                habit={{ ...habit, icon: getIcon(habit.iconName || "Footprints") }}
-                                onClick={() => setSelectedHabit({ ...habit, icon: getIcon(habit.iconName || "Footprints") })}
-                            />
-                        ))}
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-xl font-bold text-gray-900">Your Habits</h2>
+                            {habits.length > 0 && (
+                                <button
+                                    onClick={() => setShowAllHabits(!showAllHabits)}
+                                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all border ${showAllHabits
+                                        ? "bg-gray-900 text-white border-gray-900"
+                                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
+                                        }`}
+                                >
+                                    {showAllHabits ? "Showing All" : "Today's Schedule"}
+                                </button>
+                            )}
+                        </div>
+                        {habits.length === 0 && (
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="text-primary font-bold hover:underline"
+                            >
+                                + Add First Habit
+                            </button>
+                        )}
                     </div>
+
+                    {habits.length === 0 ? (
+                        /* Total Empty State */
+                        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+                            <div className="bg-gray-50 p-6 rounded-full mb-4">
+                                <Footprints size={48} className="text-gray-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">No habits yet</h3>
+                            <p className="text-gray-500 text-center max-w-sm mb-6">
+                                Start small. Add a habit you want to commit to, like "Drink Water" or "Read 5 pages".
+                            </p>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="btn bg-primary text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
+                            >
+                                <Plus size={20} />
+                                Create New Habit
+                            </button>
+                        </div>
+                    ) : visibleHabits.length === 0 ? (
+                        /* Filtered Empty State */
+                        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
+                            <div className="bg-gray-50 p-6 rounded-full mb-4">
+                                <Footprints size={48} className="text-gray-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">No habits for today</h3>
+                            <p className="text-gray-500 text-center max-w-sm mb-6">
+                                You're free! Or maybe you want to <button onClick={() => setShowAllHabits(true)} className="text-primary font-bold hover:underline">see all habits</button>?
+                            </p>
+                        </div>
+                    ) : (
+                        /* Habits Grid */
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {visibleHabits.map((habit) => (
+                                <HabitCard
+                                    key={habit.id}
+                                    habit={{ ...habit, icon: getIcon(habit.iconName) }}
+                                    onClick={() => {
+                                        setSelectedHabit(habit)
+                                        setIsEditing(false)
+                                        setIsModalOpen(true)
+                                    }}
+                                    onToggle={handleToggleHabit}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Floating Action Button (Mobile Only) */}
