@@ -1,14 +1,17 @@
 import { Link, useLocation } from "react-router-dom"
 import { LayoutDashboard, BarChart2, Users, Settings, Bike, Plus, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
+import { useLanguage } from "../../context/LanguageContext"
+import LanguageSwitcher from "../common/LanguageSwitcher"
 
 const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModal }) => {
     const location = useLocation()
+    const { t } = useLanguage()
 
     const navItems = [
-        { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-        { icon: BarChart2, label: "Reports", path: "/reports" },
-        // { icon: Users, label: "Community", path: "/community" }, // Hidden for now
-        { icon: Settings, label: "Settings", path: "/settings" },
+        { icon: LayoutDashboard, label: t('sidebar.dashboard'), path: "/dashboard" },
+        { icon: BarChart2, label: t('sidebar.reports'), path: "/reports" },
+        // { icon: Users, label: t('sidebar.community'), path: "/community" }, // Hidden for now
+        { icon: Settings, label: t('sidebar.settings'), path: "/settings" },
     ]
 
     return (
@@ -72,7 +75,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                         <div className="mt-6 px-1">
                             <button
                                 onClick={onOpenHabitModal}
-                                title="Create New Habit"
+                                title={t('habit.create')}
                                 className={`
                                     flex items-center justify-center gap-2 w-full bg-primary text-white rounded-xl font-bold hover:bg-orange-600 hover:scale-[1.02] transition-all duration-200 group
                                     ${isCollapsed ? "aspect-square py-0" : "py-3.5"}
@@ -80,7 +83,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                             >
                                 <Plus size={20} className={`transition-transform duration-300 ${isCollapsed ? "" : "group-hover:rotate-90"}`} />
                                 <span className={`text-sm whitespace-nowrap transition-all duration-300 ${isCollapsed ? "opacity-0 w-0 hidden" : "opacity-100"}`}>
-                                    Create New Habit
+                                    {t('habit.create')}
                                 </span>
                             </button>
                         </div>
@@ -89,10 +92,15 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                     {/* Footer / Premium & Toggle */}
                     <div className="mt-auto px-3 flex flex-col gap-4">
 
+                        {/* Language Switcher */}
+                        <div className={`transition-all duration-300 ${isCollapsed ? "flex justify-center" : ""}`}>
+                            <LanguageSwitcher />
+                        </div>
+
                         {/* Feedback Link */}
                         <Link
                             to="/feedback"
-                            title={isCollapsed ? "Feedback" : ""}
+                            title={isCollapsed ? t('sidebar.feedback') : ""}
                             className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium ${isCollapsed ? "justify-center" : ""}`}
                         >
                             <div className="text-gray-400 group-hover:text-primary transition-colors">
@@ -103,7 +111,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                                 </span>
                             </div>
                             <span className={`text-sm whitespace-nowrap transition-all duration-300 ${isCollapsed ? "opacity-0 w-0 hidden" : "opacity-100"}`}>
-                                Give Feedback
+                                {t('sidebar.feedback')}
                             </span>
                         </Link>
 

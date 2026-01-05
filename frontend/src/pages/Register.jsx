@@ -6,8 +6,10 @@ import pedalIcon from "../assets/images/pedal.png"
 import trackIcon from "../assets/images/track.png"
 import visualizeIcon from "../assets/images/visualize.png"
 import Toast from "../components/ui/Toast"
+import { useLanguage } from "../context/LanguageContext"
 
 const Register = () => {
+    const { t } = useLanguage()
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -102,13 +104,13 @@ const Register = () => {
             <div className="p-6 md:p-12 flex flex-col bg-white h-full min-h-screen md:min-h-0">
                 <div className="flex-grow flex flex-col justify-center gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-neutral">Create Account</h1>
+                        <h1 className="text-3xl font-bold text-neutral">{t('auth.registerTitle')}</h1>
                         <p className="text-gray-500 mt-2">Start your journey to a better you.</p>
                     </div>
 
                     <form className="flex flex-col gap-4" autoComplete="off" onSubmit={handleSubmit}>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="fullName" className="font-medium text-neutral">Full Name</label>
+                            <label htmlFor="fullName" className="font-medium text-neutral">{t('auth.fullName')}</label>
                             <input
                                 type="text"
                                 id="fullName"
@@ -116,13 +118,13 @@ const Register = () => {
                                 onChange={(e) => setFullName(e.target.value)}
                                 className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${fullName && !isNameValid ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-primary focus:ring-primary'
                                     }`}
-                                placeholder="Enter your full name"
+                                placeholder={t('auth.fullName')}
                             />
-                            {fullName && !isNameValid && <span className="text-xs text-red-500">Name must be at least 3 characters</span>}
+                            {fullName && !isNameValid && <span className="text-xs text-red-500">{t('auth.nameRequired')}</span>}
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="email" className="font-medium text-neutral">Email</label>
+                            <label htmlFor="email" className="font-medium text-neutral">{t('auth.email')}</label>
                             <input
                                 type="email"
                                 id="email"
@@ -130,15 +132,15 @@ const Register = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${email && !isEmailValid ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-primary focus:ring-primary'
                                     }`}
-                                placeholder="Enter your email"
+                                placeholder={t('auth.email')}
                                 autoComplete="off"
                             />
-                            {email && !isEmailValid && <span className="text-xs text-red-500">Please enter a valid email address</span>}
+                            {email && !isEmailValid && <span className="text-xs text-red-500">{t('auth.emailInvalid')}</span>}
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-center">
-                                <label htmlFor="password" className="font-medium text-neutral">Password</label>
+                                <label htmlFor="password" className="font-medium text-neutral">{t('auth.password')}</label>
                             </div>
                             <div className="relative">
                                 <input
@@ -147,7 +149,7 @@ const Register = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="border border-gray-200 rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-300 w-full"
-                                    placeholder="Create a password"
+                                    placeholder={t('auth.password')}
                                     autoComplete="new-password"
                                 />
                                 <button
@@ -186,11 +188,11 @@ const Register = () => {
                             disabled={!isFormValid || isLoading}
                             className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center"
                         >
-                            {isLoading ? "Creating Account..." : "Sign Up"}
+                            {isLoading ? t('auth.creatingAccount') : t('auth.createAccount')}
                         </button>
 
                         <div className="text-center text-sm text-gray-500 mt-2">
-                            Already have an account? <Link to="/login" className="text-primary font-bold hover:underline">Sign In</Link>
+                            {t('auth.alreadyHaveAccount')} <Link to="/login" className="text-primary font-bold hover:underline">{t('auth.signIn')}</Link>
                         </div>
                     </form>
                 </div>

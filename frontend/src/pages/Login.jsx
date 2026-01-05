@@ -6,8 +6,10 @@ import pedalIcon from "../assets/images/pedal.png"
 import trackIcon from "../assets/images/track.png"
 import visualizeIcon from "../assets/images/visualize.png"
 import Toast from "../components/ui/Toast"
+import { useLanguage } from "../context/LanguageContext"
 
 const Login = () => {
+    const { t } = useLanguage()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -45,7 +47,7 @@ const Login = () => {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            setToast({ message: "Please enter a valid email address", type: "error" });
+            setToast({ message: t('auth.emailInvalid'), type: "error" });
             setIsLoading(false);
             return;
         }
@@ -72,7 +74,7 @@ const Login = () => {
             localStorage.setItem("token", data.token)
             localStorage.setItem("user", JSON.stringify(data.user))
 
-            setToast({ message: "Welcome back!", type: "success" });
+            setToast({ message: t('auth.welcomeBack'), type: "success" });
 
             // Delay navigation slightly to show success toast
             setTimeout(() => {
@@ -99,13 +101,13 @@ const Login = () => {
             <div className="p-6 md:p-12 flex flex-col bg-white h-full min-h-screen md:min-h-0">
                 <div className="flex-grow flex flex-col justify-center gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-neutral">Welcome Back!</h1>
+                        <h1 className="text-3xl font-bold text-neutral">{t('auth.loginTitle')}</h1>
                         <p className="text-gray-500 mt-2">We missed you. Let's get you back on track.</p>
                     </div>
 
                     <form className="flex flex-col gap-5" autoComplete="off" onSubmit={handleSubmit} noValidate>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="email" className="font-medium text-neutral">Email</label>
+                            <label htmlFor="email" className="font-medium text-neutral">{t('auth.email')}</label>
                             <input
                                 type="email"
                                 id="email"
@@ -116,15 +118,15 @@ const Login = () => {
                                 }}
                                 className={`border rounded-lg px-4 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${toast.type === 'error' && toast.message.toLowerCase().includes('email') ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
                                     }`}
-                                placeholder="Enter your email"
+                                placeholder={t('auth.email')}
                                 autoComplete="off"
                             />
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between items-center">
-                                <label htmlFor="password" className="font-medium text-neutral">Password</label>
-                                <Link to="/forgot-password" className="text-sm text-primary hover:underline font-medium">Forgot Password?</Link>
+                                <label htmlFor="password" className="font-medium text-neutral">{t('auth.password')}</label>
+                                <Link to="/forgot-password" className="text-sm text-primary hover:underline font-medium">{t('auth.forgotPassword')}</Link>
                             </div>
                             <div className="relative">
                                 <input
@@ -137,7 +139,7 @@ const Login = () => {
                                     }}
                                     className={`border rounded-lg pl-4 pr-12 py-3 focus:outline-none focus:ring-1 transition-all duration-300 w-full ${toast.type === 'error' && toast.message.toLowerCase().includes('credentials') ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:border-primary focus:ring-primary"
                                         }`}
-                                    placeholder="Enter your password"
+                                    placeholder={t('auth.password')}
                                     autoComplete="new-password"
                                 />
                                 <button
@@ -154,11 +156,11 @@ const Login = () => {
                             disabled={!isFormValid || isLoading}
                             className="btn w-full py-3 bg-primary text-white rounded-lg font-bold text-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 transform mt-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex justify-center items-center"
                         >
-                            {isLoading ? "Signing In..." : "Sign In"}
+                            {isLoading ? t('auth.signingIn') : t('auth.signIn')}
                         </button>
 
                         <div className="text-center text-sm text-gray-500 mt-2">
-                            Don't have an account? <Link to="/register" className="text-primary font-bold hover:underline">Sign Up</Link>
+                            {t('auth.dontHaveAccount')} <Link to="/register" className="text-primary font-bold hover:underline">{t('auth.signUp')}</Link>
                         </div>
                     </form>
                 </div>
