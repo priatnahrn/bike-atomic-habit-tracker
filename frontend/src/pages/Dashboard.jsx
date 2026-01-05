@@ -24,7 +24,7 @@ const Dashboard = () => {
     const fetchHabits = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:2000/api/habits", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (response.ok) {
@@ -77,7 +77,7 @@ const Dashboard = () => {
         const fetchUser = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch("http://localhost:2000/api/user/me", {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/me`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }
@@ -125,7 +125,7 @@ const Dashboard = () => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:2000/api/habits/${habitId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habitId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -152,7 +152,7 @@ const Dashboard = () => {
     const handleAddHabit = async (newHabitData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:2000/api/habits", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -177,7 +177,7 @@ const Dashboard = () => {
             // We need the ID. The form might return just the fields.
             // selectedHabit has the ID.
 
-            const response = await fetch(`http://localhost:2000/api/habits/${selectedHabit.id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${selectedHabit.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -202,7 +202,7 @@ const Dashboard = () => {
     const handleDeleteHabit = async (habitId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:2000/api/habits/${habitId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits/${habitId}`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`

@@ -28,7 +28,7 @@ const Onboarding = () => {
         } else {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch("http://localhost:2000/api/user/onboarding", {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/onboarding`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

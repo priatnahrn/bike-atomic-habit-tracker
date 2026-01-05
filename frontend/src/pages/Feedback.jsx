@@ -17,7 +17,7 @@ const Feedback = () => {
 
         try {
             const token = localStorage.getItem("token")
-            const response = await fetch("http://localhost:2000/api/feedback", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/feedback`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

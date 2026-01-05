@@ -19,7 +19,7 @@ const Settings = () => {
                 const token = localStorage.getItem("token")
                 if (!token) return
 
-                const response = await fetch("http://localhost:2000/api/user/me", {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/me`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 })
 
@@ -48,7 +48,7 @@ const Settings = () => {
 
         try {
             const token = localStorage.getItem("token")
-            const response = await fetch("http://localhost:2000/api/user/profile-photo", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/profile-photo`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`

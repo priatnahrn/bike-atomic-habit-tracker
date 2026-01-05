@@ -27,7 +27,7 @@ const DashboardLayout = ({ children, onOpenHabitModal, title }) => {
     const handleAddHabit = async (newHabitData) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:2000/api/habits", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/habits`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
