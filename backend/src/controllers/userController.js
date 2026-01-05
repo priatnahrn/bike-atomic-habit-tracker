@@ -46,3 +46,28 @@ export const getMe = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const updateProfilePhoto = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+        const photoUrl = `http://localhost:2000/uploads/${req.file.filename}`;
+
+        const user = await prisma.user.update({
+            where: { id: req.user.id },
+            data: { profilePhoto: photoUrl }
+        });
+
+        const { password: _, ...userWithoutPassword } = user;
+        res.json({
+            message: "Profile photo updated",
+            user: userWithoutPassword
+        });
+
+    } catch (error) {
+        console.error("Update profile photo error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};

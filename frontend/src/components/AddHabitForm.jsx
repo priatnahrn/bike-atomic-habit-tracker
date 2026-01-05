@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowRight, Check, Bike, Layers, Clock, MapPin, Zap, Activity, Dumbbell, Footprints, BookOpen, PenTool, Briefcase, Code, Moon, Sun, Coffee, Music, Heart, Apple, Droplets, BedDouble, Utensils, Smile } from "lucide-react"
 import { HABIT_COLORS } from "../utils/colors"
 
@@ -25,7 +25,8 @@ const iconOptions = [
 
 const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
     const [step, setStep] = useState(1)
-    const [formData, setFormData] = useState(initialData || {
+
+    const defaultData = {
         identity: "",
         habitName: "",
         iconName: "Zap",
@@ -35,8 +36,27 @@ const AddHabitForm = ({ onClose, onAddHabit, initialData }) => {
         location: "",
         stackingCue: "",
         target: "",
-        repeatDays: [] // Initialize as empty array
-    })
+        repeatDays: []
+    }
+
+    const mapInitialDataToForm = (data) => {
+        if (!data) return defaultData;
+        return {
+            ...defaultData,
+            ...data,
+            // Map DB fields to Form fields
+            habitName: data.title || data.habitName || "",
+            identity: data.subtitle || data.identity || ""
+        }
+    }
+
+    const [formData, setFormData] = useState(mapInitialDataToForm(initialData))
+
+    useEffect(() => {
+        if (initialData) {
+            setFormData(mapInitialDataToForm(initialData))
+        }
+    }, [initialData])
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })

@@ -159,6 +159,23 @@ exports.Prisma.HabitScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.HabitLogScalarFieldEnum = {
+  id: 'id',
+  habitId: 'habitId',
+  date: 'date',
+  isCompleted: 'isCompleted',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  subject: 'subject',
+  message: 'message',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -182,7 +199,9 @@ exports.SubscriptionLabel = exports.$Enums.SubscriptionLabel = {
 exports.Prisma.ModelName = {
   User: 'User',
   Onboarding: 'Onboarding',
-  Habit: 'Habit'
+  Habit: 'Habit',
+  HabitLog: 'HabitLog',
+  Feedback: 'Feedback'
 };
 
 /**

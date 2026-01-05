@@ -30,6 +30,7 @@ model User {
   updatedAt         DateTime          @updatedAt
   onboarding        Onboarding?
   habits            Habit[]
+  feedback          Feedback[]
 }
 
 model Onboarding {
@@ -42,22 +43,42 @@ model Onboarding {
 }
 
 model Habit {
-  id                String    @id @default(uuid())
+  id                String     @id @default(uuid())
   userId            String
-  user              User      @relation(fields: [userId], references: [id])
+  user              User       @relation(fields: [userId], references: [id])
   title             String
   subtitle          String?
-  iconName          String    @default("Zap")
-  color             String    @default("orange")
-  frequency         String    @default("Daily")
+  iconName          String     @default("Zap")
+  color             String     @default("orange")
+  frequency         String     @default("Daily")
   target            String?
   time              String?
   location          String?
   stackingCue       String?
-  streak            Int       @default(0)
-  isCompleted       Boolean   @default(false)
+  streak            Int        @default(0)
+  isCompleted       Boolean    @default(false)
   lastCompletedDate DateTime?
-  repeatDays        String[]  @default([])
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  repeatDays        String[]   @default([])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  logs              HabitLog[]
+}
+
+model HabitLog {
+  id          String   @id @default(uuid())
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date        DateTime
+  isCompleted Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  category  String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import DashboardLayout from "../components/dashboard/DashboardLayout"
 import HabitCard from "../components/dashboard/HabitCard"
-import { Footprints, BookOpen, Diamond, Droplets, Flame, Edit, Plus, TrendingUp, Bike, Zap, Activity, Dumbbell, PenTool, Briefcase, Code, Moon, Sun, CloudSun, Coffee, Music, Heart, Apple, BedDouble, Utensils, Smile } from "lucide-react"
+import { Trash2, Footprints, BookOpen, Diamond, Droplets, Flame, Edit, Plus, TrendingUp, Bike, Zap, Activity, Dumbbell, PenTool, Briefcase, Code, Moon, Sun, CloudSun, Coffee, Music, Heart, Apple, BedDouble, Utensils, Smile } from "lucide-react"
 import Modal from "../components/Modal"
 import AddHabitForm from "../components/AddHabitForm"
 import HabitDetail from "../components/HabitDetail"
@@ -12,6 +12,7 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedHabit, setSelectedHabit] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
     const [userData, setUserData] = useState(null)
     const [isLoadingUser, setIsLoadingUser] = useState(true)
 
@@ -38,8 +39,7 @@ const Dashboard = () => {
     };
 
     // Filter Logic
-    const shouldShowHabit = (habit) => {
-        if (showAllHabits) return true;
+    const isScheduledForToday = (habit) => {
         if (!habit.frequency || habit.frequency === "Daily") return true;
 
         const today = new Date();
@@ -62,7 +62,15 @@ const Dashboard = () => {
         return true;
     }
 
-    const visibleHabits = habits.filter(shouldShowHabit);
+    const visibleHabits = showAllHabits ? habits : habits.filter(isScheduledForToday);
+
+    // Calculate Daily Goal based ONLY on today's scheduled habits
+    const todaysHabits = habits.filter(isScheduledForToday);
+    const dailyGoal = {
+        current: todaysHabits.filter(h => h.isCompleted).length,
+        total: todaysHabits.length
+    }
+    const progressPercentage = dailyGoal.total > 0 ? (dailyGoal.current / dailyGoal.total) * 100 : 0
 
     // Fetch User Data and Habits
     useEffect(() => {
@@ -189,6 +197,29 @@ const Dashboard = () => {
         }
     }
 
+
+
+    const handleDeleteHabit = async (habitId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:2000/api/habits/${habitId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                setHabits(habits.filter(h => h.id !== habitId));
+                setSelectedHabit(null);
+                setIsDeleteConfirmOpen(false);
+                setIsModalOpen(false);
+            }
+        } catch (error) {
+            console.error("Failed to delete habit:", error);
+        }
+    }
+
     // --- Dynamic Greeting Logic ---
     const getGreeting = () => {
         const hour = new Date().getHours()
@@ -201,9 +232,6 @@ const Dashboard = () => {
     const GreetingIconComponent = greeting.icon
 
     // Mock Daily Goal Data
-    const dailyGoal = { current: habits.filter(h => h.isCompleted).length, total: habits.length }
-    const progressPercentage = dailyGoal.total > 0 ? (dailyGoal.current / dailyGoal.total) * 100 : 0
-
     const userName = userData?.name ? userData.name.split(' ')[0] : 'Legend';
 
     return (
@@ -227,7 +255,7 @@ const Dashboard = () => {
                         </h1>
                         <p className="text-lg font-medium text-gray-600 max-w-md">
                             {habits.length > 0
-                                ? <span>Ready to crush your goals today? You have <span className="font-bold text-gray-900">{habits.filter(h => !h.isCompleted).length} pending habits</span>.</span>
+                                ? <span>Ready to crush your goals today? You have <span className="font-bold text-gray-900">{todaysHabits.filter(h => !h.isCompleted).length} pending habits</span>.</span>
                                 : <span>Your journey starts here. Let's build your first habit!</span>
                             }
                         </p>
@@ -331,7 +359,7 @@ const Dashboard = () => {
                                     key={habit.id}
                                     habit={{ ...habit, icon: getIcon(habit.iconName) }}
                                     onClick={() => {
-                                        setSelectedHabit(habit)
+                                        setSelectedHabit({ ...habit, icon: getIcon(habit.iconName) })
                                         setIsEditing(false)
                                         setIsModalOpen(true)
                                     }}
@@ -352,8 +380,36 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                <Modal isOpen={isModalOpen || !!selectedHabit} onClose={() => { setIsModalOpen(false); setSelectedHabit(null); setIsEditing(false) }}>
-                    {isEditing ? (
+                <Modal
+                    isOpen={isModalOpen || !!selectedHabit || isDeleteConfirmOpen}
+                    onClose={() => { setIsModalOpen(false); setSelectedHabit(null); setIsEditing(false); setIsDeleteConfirmOpen(false) }}
+                    size={isDeleteConfirmOpen ? "sm" : "4xl"}
+                >
+                    {isDeleteConfirmOpen && selectedHabit ? (
+                        <div className="p-8 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-200">
+                            <div className="size-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
+                                <Trash2 size={32} />
+                            </div>
+                            <h3 className="text-xl font-extrabold text-gray-900 mb-2">Delete Habit?</h3>
+                            <p className="text-gray-500 mb-6 max-w-sm mx-auto text-sm">
+                                Are you sure you want to delete <span className="font-bold text-gray-900">{selectedHabit.title}</span>? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3 w-full">
+                                <button
+                                    onClick={() => setIsDeleteConfirmOpen(false)}
+                                    className="flex-1 h-10 rounded-xl font-bold border-2 border-gray-100 text-gray-600 hover:bg-gray-50 transition-colors text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteHabit(selectedHabit.id)}
+                                    className="flex-1 h-10 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 text-sm"
+                                >
+                                    Yes, Delete
+                                </button>
+                            </div>
+                        </div>
+                    ) : isEditing ? (
                         <AddHabitForm
                             initialData={selectedHabit}
                             onClose={() => { setIsEditing(false); setSelectedHabit(null); setIsModalOpen(false) }}
@@ -364,6 +420,7 @@ const Dashboard = () => {
                             habit={selectedHabit}
                             onClose={() => setSelectedHabit(null)}
                             onEdit={() => setIsEditing(true)}
+                            onDelete={() => setIsDeleteConfirmOpen(true)}
                         />
                     ) : (
                         <AddHabitForm onClose={() => setIsModalOpen(false)} onAddHabit={handleAddHabit} />
@@ -373,5 +430,6 @@ const Dashboard = () => {
         </DashboardLayout>
     )
 }
+
 
 export default Dashboard

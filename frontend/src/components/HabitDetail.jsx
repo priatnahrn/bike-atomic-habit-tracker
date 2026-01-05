@@ -1,7 +1,8 @@
+import { useState } from "react"
 import { Flame, Calendar, Trophy, MapPin, Clock, Edit, Trash2, X, CheckCircle } from "lucide-react"
 import { getColorClass } from "../utils/colors"
 
-const HabitDetail = ({ habit, onClose, onEdit }) => {
+const HabitDetail = ({ habit, onClose, onEdit, onDelete }) => {
     if (!habit) return null
 
     const Icon = habit.icon
@@ -44,7 +45,7 @@ const HabitDetail = ({ habit, onClose, onEdit }) => {
                         <CheckCircle size={20} />
                     </div>
                     <div className="text-center">
-                        <span className="block text-xl font-extrabold text-gray-900">24</span> {/* Mock Data */}
+                        <span className="block text-xl font-extrabold text-gray-900">{habit.totalCompletions || 0}</span>
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total</span>
                     </div>
                 </div>
@@ -53,7 +54,7 @@ const HabitDetail = ({ habit, onClose, onEdit }) => {
                         <Trophy size={20} />
                     </div>
                     <div className="text-center">
-                        <span className="block text-xl font-extrabold text-gray-900">12</span> {/* Mock Data */}
+                        <span className="block text-xl font-extrabold text-gray-900">{habit.bestStreak || 0}</span>
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Best</span>
                     </div>
                 </div>
@@ -66,7 +67,36 @@ const HabitDetail = ({ habit, onClose, onEdit }) => {
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Frequency</span>
                         <div className="flex items-center gap-2 text-gray-900 font-bold">
                             <Calendar size={18} className={theme.text} />
-                            {habit.frequency}
+                            {(() => {
+                                if (habit.frequency === "Weekly" && habit.repeatDays?.length > 0) {
+                                    return (
+                                        <div className="flex flex-col">
+                                            <span>{habit.repeatDays.length}x / week</span>
+                                            <span className="text-xs text-gray-500 font-normal leading-tight mt-0.5">
+                                                {habit.repeatDays.map(d => d.slice(0, 3)).join(", ")}
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                                if (habit.frequency === "Monthly" && habit.repeatDays?.length > 0) {
+                                    return (
+                                        <div className="flex flex-col">
+                                            <span>{habit.repeatDays.length}x / month</span>
+                                            <span className="text-xs text-gray-500 font-normal leading-tight mt-0.5">
+                                                {habit.repeatDays.map(d => {
+                                                    if (d === "Last") return "Last"
+                                                    const num = parseInt(d)
+                                                    if ([1, 21, 31].includes(num)) return `${d}st`
+                                                    if ([2, 22].includes(num)) return `${d}nd`
+                                                    if ([3, 23].includes(num)) return `${d}rd`
+                                                    return `${d}th`
+                                                }).join(", ")}
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                                return <span>{habit.frequency}</span>
+                            })()}
                         </div>
                     </div>
                     <div className="space-y-1">
@@ -111,7 +141,10 @@ const HabitDetail = ({ habit, onClose, onEdit }) => {
                     <Edit size={18} />
                     Edit Habit
                 </button>
-                <button className="h-12 w-12 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all">
+                <button
+                    onClick={onDelete}
+                    className="h-12 w-12 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all"
+                >
                     <Trash2 size={20} />
                 </button>
             </div>

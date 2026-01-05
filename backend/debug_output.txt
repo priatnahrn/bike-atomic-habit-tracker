@@ -1,0 +1,24 @@
+=== Habits with Streak > 0 ===
+Current Server Time: 2026-01-05T01:41:46.142Z
+Habit: Lari Pagi (ID: 00824744-e5bb-49e9-ae20-bd51f2c3e9a5)
+  Streak: 1
+  Created At: 2026-01-04T07:40:26.740Z
+  Frequency: Weekly
+  Logs:
+    - ID: 089afd8f-4ae5-4000-b6a4-02e007e95925, Date: 2026-01-04T17:00:00.000Z, Completed: true
+  Debug Yesterday (2026-01-03T17:00:00.000Z):
+    - Habit Created Normalized: 2026-01-03T17:00:00.000Z
+    - Created <= Yesterday? true
+    - Found Logs for Yesterday: 0
+------------------------------------------------
+Habit: ergergerg (ID: da8d5fdf-b3cd-4dbb-9f19-5ae065308395)
+  Streak: 2
+  Created At: 2026-01-04T06:24:50.489Z
+  Frequency: Daily
+  Logs:
+    - ID: 22be25e9-7e3c-435a-98f6-c737da7ed305, Date: 2026-01-04T17:00:00.000Z, Completed: true
+  Debug Yesterday (2026-01-03T17:00:00.000Z):
+    - Habit Created Normalized: 2026-01-03T17:00:00.000Z
+    - Created <= Yesterday? true
+    - Found Logs for Yesterday: 0
+------------------------------------------------

@@ -9,6 +9,7 @@ import Reports from "./pages/Reports"
 import Community from "./pages/Community"
 import CommunityDetail from "./pages/CommunityDetail"
 import Settings from "./pages/Settings"
+import Feedback from "./pages/Feedback"
 import ForgotPassword from './pages/ForgotPassword'
 import ProtectedRoute from "./components/auth/ProtectedRoute"
 import PublicRoute from "./components/auth/PublicRoute"
@@ -26,6 +27,7 @@ function App() {
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path="/community/:id" element={<ProtectedRoute><CommunityDetail /></ProtectedRoute>} />
+        <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       </Routes>
     </Router>

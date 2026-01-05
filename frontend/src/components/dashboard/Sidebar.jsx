@@ -7,7 +7,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
     const navItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
         { icon: BarChart2, label: "Reports", path: "/reports" },
-        { icon: Users, label: "Community", path: "/community" },
+        // { icon: Users, label: "Community", path: "/community" }, // Hidden for now
         { icon: Settings, label: "Settings", path: "/settings" },
     ]
 
@@ -89,7 +89,26 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                     {/* Footer / Premium & Toggle */}
                     <div className="mt-auto px-3 flex flex-col gap-4">
 
-                        {/* Premium Card */}
+                        {/* Feedback Link */}
+                        <Link
+                            to="/feedback"
+                            title={isCollapsed ? "Feedback" : ""}
+                            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group text-gray-500 hover:bg-gray-50 hover:text-gray-900 font-medium ${isCollapsed ? "justify-center" : ""}`}
+                        >
+                            <div className="text-gray-400 group-hover:text-primary transition-colors">
+                                <Sparkles size={22} className="hidden" /> {/* Placeholder to match alignment if needed, or just use Message icon */}
+                                <Users size={22} className="hidden" />
+                                <span className="block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                                </span>
+                            </div>
+                            <span className={`text-sm whitespace-nowrap transition-all duration-300 ${isCollapsed ? "opacity-0 w-0 hidden" : "opacity-100"}`}>
+                                Give Feedback
+                            </span>
+                        </Link>
+
+                        {/* Premium Card - HIDDEN */}
+                        {/* 
                         <div className={`
                             relative overflow-hidden transition-all duration-300 group cursor-pointer
                             ${isCollapsed
@@ -116,6 +135,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, toggleCollapse, onOpenHabitModa
                                 </>
                             )}
                         </div>
+                         */}
                     </div>
                 </div>
             </aside>
