@@ -39,7 +39,7 @@ app.use("/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(process.env.VERCEL ? "/tmp/uploads" : "uploads"));
 
 app.get("/", (req, res) => {
     res.send("🚀 API berjalan dengan baik!");

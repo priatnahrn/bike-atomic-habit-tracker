@@ -6,9 +6,13 @@ import path from "path";
 import fs from "fs";
 
 // Ensure uploads directory exists
-const uploadDir = 'uploads';
+const uploadDir = process.env.VERCEL ? '/tmp/uploads' : 'uploads';
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    try {
+        fs.mkdirSync(uploadDir);
+    } catch (err) {
+        console.log("Could not create upload dir, ignoring:", err);
+    }
 }
 
 const storage = multer.diskStorage({
