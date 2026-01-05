@@ -123,4 +123,4 @@ bike/
 This project is licensed under the MIT License.
 
 ---
-*Built with ❤️ by [Your Name] using React & Express.*
+*Built with SPIRIT by Herlin Priatna using React & Express.*
